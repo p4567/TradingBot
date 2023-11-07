@@ -1,4 +1,4 @@
-#TradingBot
+# TradingBot
 Welcome to TradingBot, an automated trading system designed to interact with the OANDA API for executing trades based on technical analysis and predefined strategies.
 
 Features
