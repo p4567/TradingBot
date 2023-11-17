@@ -1,7 +1,8 @@
 import pandas as pd
 from models.trade_decision import TradeDecision
 
-from technicals.indicators import BollingerBands
+from technicals.indicators import *
+from technicals.patterns import *
 
 pd.set_option('display.max_columns', None)
 pd.set_option('expand_frame_repr', False)
@@ -44,10 +45,10 @@ def process_candles(df: pd.DataFrame, pair, trade_settings: TradeSettings, log_m
     df.reset_index(drop=True, inplace=True)
     df['PAIR'] = pair
     df['SPREAD'] = df.ask_c - df.bid_c
-
+    df = apply_patterns(df)
     df = BollingerBands(df, trade_settings.n_ma, trade_settings.n_std)
     df['GAIN'] = abs(df.mid_c - df.BB_MA)
-    df['SIGNAL'] = df.apply(apply_signal, axis=1, trade_settings=trade_settings)
+    df['SIGNAL'] = df.apply(lambda row: defs.BUY if row['PATTERN_COUNT'] >= 2 and row['direction'] > 0 else (defs.SELL if row['PATTERN_COUNT'] >= 2 and row['direction'] < 0 else defs.NONE), axis=1)
     df['TP'] = df.apply(apply_TP, axis=1)
     df['SL'] = df.apply(apply_SL, axis=1, trade_settings=trade_settings)
     df['LOSS'] = abs(df.mid_c - df.SL)
@@ -88,5 +89,8 @@ def get_trade_decision(candle_time, pair, granularity, api: OandaApi,
         return TradeDecision(last_row)
 
     return None
+
+
+
 
 
