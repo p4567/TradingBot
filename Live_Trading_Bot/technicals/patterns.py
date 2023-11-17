@@ -37,8 +37,14 @@ def apply_spinning_top(row):
                 return True
     return False
 
-def apply_engulfing(row):
-    if row.direction != row.direction_prev:
+def apply_bullish_engulfing(row):
+    if row.direction == 1 and row.direction_prev==-1:
+        if row.body_size > row.body_size_prev * ENGULFING_FACTOR:
+            return True
+    return False
+
+def apply_bearish_engulfing(row):
+    if row.direction == -1 and row.direction_prev==1:
         if row.body_size > row.body_size_prev * ENGULFING_FACTOR:
             return True
     return False
@@ -116,7 +122,8 @@ def set_candle_patterns(df_an: pd.DataFrame):
     df_an['SHOOTING_STAR'] = df_an.apply(apply_shooting_star, axis=1)
     df_an['SPINNING_TOP'] = df_an.apply(apply_spinning_top, axis=1)
     df_an['MARUBOZU'] = df_an.apply(apply_marubozu, axis=1)
-    df_an['ENGULFING'] = df_an.apply(apply_engulfing, axis=1)
+    df_an['BULLISH_ENGULFING'] = df_an.apply(apply_bullish_engulfing, axis=1)
+    df_an['BEARISH_ENGULFING'] = df_an.apply(apply_bearish_engulfing, axis=1)
     df_an['TWEEZER_TOP'] = df_an.apply(apply_tweezer_top, axis=1)
     df_an['TWEEZER_BOTTOM'] = df_an.apply(apply_tweezer_bottom, axis=1)
     df_an['MORNING_STAR'] = df_an.apply(apply_morning_star, axis=1)
@@ -125,4 +132,6 @@ def set_candle_patterns(df_an: pd.DataFrame):
 def apply_patterns(df: pd.DataFrame):
     df_an = apply_candle_props(df)
     set_candle_patterns(df_an)
+    pattern_columns = ['HANGING_MAN', 'SHOOTING_STAR', 'SPINNING_TOP', 'MARUBOZU', 'BEARISH_ENGULFING','BULLISH_ENGULFING', 'TWEEZER_TOP', 'TWEEZER_BOTTOM', 'MORNING_STAR', 'EVENING_STAR']
+    df_an['PATTERN_COUNT'] = df_an[pattern_columns].sum(axis=1)
     return df_an
