@@ -48,7 +48,7 @@ def process_candles(df: pd.DataFrame, pair, trade_settings: TradeSettings, log_m
     df = apply_patterns(df)
     df = BollingerBands(df, trade_settings.n_ma, trade_settings.n_std)
     df['GAIN'] = abs(df.mid_c - df.BB_MA)
-    df['SIGNAL'] = df.apply(lambda row: defs.BUY if row['PATTERN_COUNT'] >= 2 and row['direction'] > 0 else (defs.SELL if row['PATTERN_COUNT'] >= 2 and row['direction'] < 0 else defs.NONE), axis=1)
+    df['SIGNAL'] = df.apply(lambda row: defs.BUY if row['BULLISH_ENGULFING'] else (defs.SELL if row['BEARISH_ENGULFING'] else defs.NONE), axis=1)
     df['TP'] = df.apply(apply_TP, axis=1)
     df['SL'] = df.apply(apply_SL, axis=1, trade_settings=trade_settings)
     df['LOSS'] = abs(df.mid_c - df.SL)
@@ -89,8 +89,5 @@ def get_trade_decision(candle_time, pair, granularity, api: OandaApi,
         return TradeDecision(last_row)
 
     return None
-
-
-
 
 
